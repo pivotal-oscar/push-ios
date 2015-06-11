@@ -5,10 +5,10 @@
 #import "Kiwi.h"
 #import "PCFPush.h"
 #import "PCFPushErrors.h"
+#import "PCFPushTimer.h"
 #import "PCFPushParameters.h"
 #import "PCFPushClientTest.h"
 #import "PCFPushSpecsHelper.h"
-#import "PCFPushURLConnection.h"
 #import "NSObject+PCFJSONizable.h"
 #import "PCFPushGeofenceUpdater.h"
 #import "PCFPushGeofenceHandler.h"
@@ -1103,6 +1103,8 @@ describe(@"PCFPush", ^{
             afterEach(^{
                 [[theValue(wasExpectedBlockCalled) shouldEventually] beTrue];
             });
+
+            // TODO - fix this test
 //
 //            it(@"should be able to register to some new tags and then fetch geofences if there have been no geofence updates (but fail to fetch geofences)", ^{
 //                expectedSubscribeTags = helper.tags2;
@@ -1133,7 +1135,7 @@ describe(@"PCFPush", ^{
                     expectedUnsubscribeTags = helper.tags1;
 
                     [helper setupGeofencesForSuccessfulUpdateWithLastModifiedTime:1337L];
-                    [[PCFPushGeofenceHandler shouldNot] receive:@selector(checkGeofencesForNewlySubscribedTagsWithStore:locationManager:)];
+                    [[PCFPushTimer shouldNot] receive:@selector(startLocationUpdateTimer:)];
                     [[PCFPushGeofenceUpdater shouldEventually] receive:@selector(startGeofenceUpdate:userInfo:timestamp:success:failure:) withCount:1];
 
                     [PCFPush subscribeToTags:helper.tags2 success:^{
@@ -1151,7 +1153,7 @@ describe(@"PCFPush", ^{
                     expectedUnsubscribeTags = helper.tags1;
 
                     [PCFPushPersistentStorage setGeofenceLastModifiedTime:8888L];
-                    [[PCFPushGeofenceHandler should] receive:@selector(checkGeofencesForNewlySubscribedTagsWithStore:locationManager:)];
+                    [[PCFPushTimer should] receive:@selector(startLocationUpdateTimer:)];
                     [[PCFPushGeofenceUpdater shouldNot] receive:@selector(startGeofenceUpdate:userInfo:timestamp:success:failure:)];
 
                     [PCFPush subscribeToTags:helper.tags2 success:^{
@@ -1167,7 +1169,7 @@ describe(@"PCFPush", ^{
                 it(@"should not call the update API if provided the same tags (but then do a geofence update if required - but the geofence update fails)", ^{
                     [helper setupGeofencesForFailedUpdate];
 
-                    [[PCFPushGeofenceHandler shouldNot] receive:@selector(checkGeofencesForNewlySubscribedTagsWithStore:locationManager:)];
+                    [[PCFPushTimer shouldNot] receive:@selector(startLocationUpdateTimer:)];
                     [[PCFPushGeofenceUpdater should] receive:@selector(startGeofenceUpdate:userInfo:timestamp:success:failure:) withCount:1];
 
                     [PCFPush subscribeToTags:helper.tags1 success:^{
@@ -1183,7 +1185,7 @@ describe(@"PCFPush", ^{
                 it(@"should not call the update API if provided the same tags (but then do a geofence update if required)", ^{
                     [helper setupGeofencesForSuccessfulUpdateWithLastModifiedTime:1337L];
 
-                    [[PCFPushGeofenceHandler shouldNot] receive:@selector(checkGeofencesForNewlySubscribedTagsWithStore:locationManager:)];
+                    [[PCFPushTimer shouldNot] receive:@selector(startLocationUpdateTimer:)];
                     [[PCFPushGeofenceUpdater should] receive:@selector(startGeofenceUpdate:userInfo:timestamp:success:failure:) withCount:1];
 
                     [PCFPush subscribeToTags:helper.tags1 success:^{
@@ -1199,7 +1201,7 @@ describe(@"PCFPush", ^{
                 it(@"should not call the update API if provided the same tags (and then skip the geofence update if not required)", ^{
                     [PCFPushPersistentStorage setGeofenceLastModifiedTime:999L];
 
-                    [[PCFPushGeofenceHandler shouldNot] receive:@selector(checkGeofencesForNewlySubscribedTagsWithStore:locationManager:)];
+                    [[PCFPushTimer shouldNot] receive:@selector(startLocationUpdateTimer:)];
                     [[PCFPushGeofenceUpdater shouldNot] receive:@selector(startGeofenceUpdate:userInfo:timestamp:success:failure:)];
 
                     [PCFPush subscribeToTags:helper.tags1 success:^{
@@ -1227,7 +1229,7 @@ describe(@"PCFPush", ^{
                     expectedSubscribeTags = helper.tags2;
                     expectedUnsubscribeTags = helper.tags1;
 
-                    [[PCFPushGeofenceHandler shouldNot] receive:@selector(checkGeofencesForNewlySubscribedTagsWithStore:locationManager:)];
+                    [[PCFPushTimer shouldNot] receive:@selector(startLocationUpdateTimer:)];
                     [[PCFPushGeofenceUpdater shouldNot] receive:@selector(startGeofenceUpdate:userInfo:timestamp:success:failure:)];
                     [[PCFPushGeofenceUpdater shouldNot] receive:@selector(clearGeofences:error:)];
 
@@ -1246,7 +1248,7 @@ describe(@"PCFPush", ^{
                     expectedUnsubscribeTags = helper.tags1;
 
                     [PCFPushPersistentStorage setGeofenceLastModifiedTime:8888L];
-                    [[PCFPushGeofenceHandler shouldNot] receive:@selector(checkGeofencesForNewlySubscribedTagsWithStore:locationManager:)];
+                    [[PCFPushTimer shouldNot] receive:@selector(startLocationUpdateTimer:)];
                     [[PCFPushGeofenceUpdater shouldNot] receive:@selector(startGeofenceUpdate:userInfo:timestamp:success:failure:)];
                     [[PCFPushGeofenceUpdater should] receive:@selector(clearGeofences:error:)];
                     [PCFPushGeofenceUpdater stub:@selector(clearGeofences:error:) withBlock:^id(NSArray *params) {
@@ -1265,7 +1267,7 @@ describe(@"PCFPush", ^{
                 });
 
                 it(@"should not call the update API if provided the same tags (i.e.: no-op)", ^{
-                    [[PCFPushGeofenceHandler shouldNot] receive:@selector(checkGeofencesForNewlySubscribedTagsWithStore:locationManager:)];
+                    [[PCFPushTimer shouldNot] receive:@selector(startLocationUpdateTimer:)];
                     [[PCFPushGeofenceUpdater shouldNot] receive:@selector(startGeofenceUpdate:userInfo:timestamp:success:failure:) withCount:1];
                     [[PCFPushGeofenceUpdater shouldNot] receive:@selector(clearGeofences:error:)];
 
@@ -1282,7 +1284,7 @@ describe(@"PCFPush", ^{
                 it(@"should not call the update API if provided the same tags (and then clear the geofences)", ^{
                     [PCFPushPersistentStorage setGeofenceLastModifiedTime:999L];
 
-                    [[PCFPushGeofenceHandler shouldNot] receive:@selector(checkGeofencesForNewlySubscribedTagsWithStore:locationManager:)];
+                    [[PCFPushTimer shouldNot] receive:@selector(startLocationUpdateTimer:)];
                     [[PCFPushGeofenceUpdater shouldNot] receive:@selector(startGeofenceUpdate:userInfo:timestamp:success:failure:)];
                     [[PCFPushGeofenceUpdater should] receive:@selector(clearGeofences:error:)];
                     [PCFPushGeofenceUpdater stub:@selector(clearGeofences:error:) withBlock:^id(NSArray *params) {
@@ -1328,7 +1330,7 @@ describe(@"PCFPush", ^{
                     wasRequestCalled = YES;
                 }];
 
-                [[PCFPushGeofenceHandler shouldNot] receive:@selector(checkGeofencesForNewlySubscribedTagsWithStore:locationManager:)];
+                [[PCFPushTimer shouldNot] receive:@selector(startLocationUpdateTimer:)];
                 [[PCFPushGeofenceUpdater shouldNot] receive:@selector(startGeofenceUpdate:userInfo:timestamp:success:failure:)];
 
                 [PCFPush subscribeToTags:helper.tags2 success:^{
@@ -1348,7 +1350,7 @@ describe(@"PCFPush", ^{
                     wasRequestCalled = YES;
                 }];
 
-                [[PCFPushGeofenceHandler shouldNot] receive:@selector(checkGeofencesForNewlySubscribedTagsWithStore:locationManager:)];
+                [[PCFPushTimer shouldNot] receive:@selector(startLocationUpdateTimer:)];
                 [[PCFPushGeofenceUpdater shouldNot] receive:@selector(startGeofenceUpdate:userInfo:timestamp:success:failure:)];
 
                 [PCFPush subscribeToTags:helper.tags2 success:^{
@@ -1554,6 +1556,54 @@ describe(@"PCFPush", ^{
                 [[PCFPushGeofenceHandler shouldNot] receive:@selector(processRegion:store:engine:state:)];
                 [[PCFPushClient shared] locationManager:locationManager didDetermineState:CLRegionStateOutside forRegion:region];
                 [[PCFPushClient shared] locationManager:locationManager didDetermineState:CLRegionStateUnknown forRegion:region];
+            });
+        });
+    });
+
+    describe(@"location tracking and timer", ^{
+        __block CLLocationManager *locationManager;
+
+        beforeEach(^{
+            [helper setupDefaultPLIST];
+            locationManager = [CLLocationManager mock];
+        });
+
+        context(@"ignoring location updates", ^{
+
+            beforeEach(^{
+                [[PCFPushTimer shouldNot] receive:@selector(stopLocationUpdateTimer:)];
+                [[PCFPushTimer shouldNot] receive:@selector(startLocationUpdateTimer:)];
+            });
+
+            it(@"should not process geofences with no location update", ^{
+                [[PCFPushClient shared] locationManager:locationManager didUpdateLocations:nil];
+            });
+
+            it(@"should not process geofences with an empty locations array", ^{
+                [[PCFPushClient shared] locationManager:locationManager didUpdateLocations:@[]];
+            });
+
+            it(@"should not process geofences when location updates are old", ^{
+                CLLocation *location = [[CLLocation alloc] initWithCoordinate:CLLocationCoordinate2DMake(0, 0) altitude:0 horizontalAccuracy:0 verticalAccuracy:0 timestamp:[NSDate distantPast]];
+                [[PCFPushClient shared] locationManager:locationManager didUpdateLocations:@[location]];
+            });
+
+            it(@"should not process geofences if the location update is too inaccurate", ^{
+                CLLocation *location = [[CLLocation alloc] initWithCoordinate:CLLocationCoordinate2DMake(0, 0) altitude:0 horizontalAccuracy:10000 verticalAccuracy:0 timestamp:[NSDate date]];
+                [[PCFPushClient shared] locationManager:locationManager didUpdateLocations:@[location]];
+            });
+        });
+
+        context(@"processing location updates", ^{
+
+            beforeEach(^{
+                [[PCFPushTimer should] receive:@selector(stopLocationUpdateTimer:)];
+                [[PCFPushGeofenceHandler should] receive:@selector(checkGeofencesForNewlySubscribedTagsWithStore:locationManager:)];
+            });
+
+            it(@"should process geofences with location updates", ^{
+                CLLocation *location = [[CLLocation alloc] initWithCoordinate:CLLocationCoordinate2DMake(0, 0) altitude:0 horizontalAccuracy:0 verticalAccuracy:0 timestamp:[NSDate date]];
+                [[PCFPushClient shared] locationManager:locationManager didUpdateLocations:@[location]];
             });
         });
     });

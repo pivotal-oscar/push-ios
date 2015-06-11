@@ -14,6 +14,7 @@
 #import "PCFPushGeofenceUtil.h"
 #import "PCFPushGeofenceStatus.h"
 #import "PCFPushGeofenceStatusUtil.h"
+#import "PCFPushTimer.h"
 
 @interface PCFPushGeofenceRegistrar ()
 
@@ -50,8 +51,11 @@
         CLRegion *region = pcfPushRegionForLocation(requestId, geofence, location);
         [self.locationManager startMonitoringForRegion:region];
         PCFPushLog(@"Now monitoring location '%@'", requestId);
-        [self.locationManager requestStateForRegion:region];
     }];
+
+    if (geofencesToRegister && geofencesToRegister.count > 0) {
+        [PCFPushTimer startLocationUpdateTimer:self.locationManager];
+    }
 
     PCFPushLog(@"Number of monitored geofence locations: %d", geofencesToRegister.count);
     [PCFPushGeofenceStatusUtil updateGeofenceStatusWithError:NO errorReason:nil number:geofencesToRegister.count fileManager:[NSFileManager defaultManager]];

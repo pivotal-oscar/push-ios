@@ -9,6 +9,7 @@
 @class PCFPushGeofenceRegistrar;
 @class PCFPushGeofencePersistentStore;
 @class PCFPushGeofenceEngine;
+@class PCFPushTimer;
 
 @interface PCFPushClient : NSObject<CLLocationManagerDelegate>
 
