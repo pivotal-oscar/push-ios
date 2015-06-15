@@ -12,5 +12,7 @@
     <string>444-555-666-777</string>
 	<key>pivotal.push.platformSecretProduction</key>
 	<string>No secret is as strong as its blabbiest keeper</string>
+    <key>pivotal.push.trustAllSslCertificates</key>
+    <string>false</string>
 </dict>
 </plist>

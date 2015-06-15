@@ -78,7 +78,14 @@ void resetOnceToken() {
             [PCFPushParameters enumerateParametersWithBlock:^(id plistPropertyName, id propertyName, BOOL *stop) {
                 id propertyValue = [plist valueForKey:plistPropertyName];
                 if (propertyValue) {
-                    [params setValue:propertyValue forKeyPath:propertyName];
+                    if ([propertyName isEqualToString:@"trustAllSslCertificates"]) {
+                        NSString *trustValue = (NSString*)propertyValue;
+                        if ([trustValue.lowercaseString isEqualToString:@"true"]) {
+                            params.trustAllSslCertificates = YES;
+                        }
+                    } else {
+                        [params setValue:propertyValue forKeyPath:propertyName];
+                    }
                 }
             }];
         } @catch (NSException *exception) {
@@ -110,6 +117,11 @@ void resetOnceToken() {
     __block BOOL result = YES;
 
     [PCFPushParameters enumerateParametersWithBlock:^(id plistPropertyName, id propertyName, BOOL *stop) {
+
+        if ([propertyName isEqualToString:@"trustAllSslCertificates"]) {
+            return;
+        }
+
         id propertyValue = [self valueForKeyPath:propertyName];
         if (!propertyValue || ([propertyValue respondsToSelector:@selector(length)] && [propertyValue length] <= 0)) {
             PCFPushLog(@"PCFPushParameters failed validation caused by an invalid parameter %@.", propertyName);
@@ -130,6 +142,7 @@ void resetOnceToken() {
                 @"pivotal.push.platformSecretProduction" : @"productionPushVariantSecret",
                 @"pivotal.push.platformUuidDevelopment" : @"developmentPushVariantUUID",
                 @"pivotal.push.platformSecretDevelopment" : @"developmentPushVariantSecret",
+                @"pivotal.push.trustAllSslCertificates" : @"trustAllSslCertificates"
         };
     }
     if (block) {

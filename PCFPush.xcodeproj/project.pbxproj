@@ -38,6 +38,8 @@
 		2318E6B4199C039A0054C274 /* PCFPushErrorUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 2318E685199C039A0054C274 /* PCFPushErrorUtil.m */; };
 		2318E6B5199C039A0054C274 /* PCFPushHexUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 2318E686199C039A0054C274 /* PCFPushHexUtil.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2318E6B6199C039A0054C274 /* PCFPushHexUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 2318E687199C039A0054C274 /* PCFPushHexUtil.m */; };
+		B69DB187F06479E0C679E69D /* PCFPushURLConnectionDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B69DB1C1C77D584309B4A514 /* PCFPushURLConnectionDelegate.m */; };
+		B69DB6F10C98BAE96E584C79 /* PCFPushURLConnectionDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = B69DBF79035BF7EB512921CE /* PCFPushURLConnectionDelegate.h */; };
 		D45B1D7A19A2944000F57230 /* PCFPushRegistrationPutRequestData.h in Headers */ = {isa = PBXBuildFile; fileRef = D45B1D7819A2944000F57230 /* PCFPushRegistrationPutRequestData.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D45B1D7B19A2944000F57230 /* PCFPushRegistrationPutRequestData.m in Sources */ = {isa = PBXBuildFile; fileRef = D45B1D7919A2944000F57230 /* PCFPushRegistrationPutRequestData.m */; };
 		D4B9FF2319A3CD950070A429 /* PCFPushPersistentStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = D4B9FF2119A3CD950070A429 /* PCFPushPersistentStorage.h */; };
@@ -80,6 +82,8 @@
 		2318E685199C039A0054C274 /* PCFPushErrorUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PCFPushErrorUtil.m; sourceTree = "<group>"; };
 		2318E686199C039A0054C274 /* PCFPushHexUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PCFPushHexUtil.h; sourceTree = "<group>"; };
 		2318E687199C039A0054C274 /* PCFPushHexUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PCFPushHexUtil.m; sourceTree = "<group>"; };
+		B69DB1C1C77D584309B4A514 /* PCFPushURLConnectionDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PCFPushURLConnectionDelegate.m; sourceTree = "<group>"; };
+		B69DBF79035BF7EB512921CE /* PCFPushURLConnectionDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PCFPushURLConnectionDelegate.h; sourceTree = "<group>"; };
 		D45B1D7819A2944000F57230 /* PCFPushRegistrationPutRequestData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PCFPushRegistrationPutRequestData.h; sourceTree = "<group>"; };
 		D45B1D7919A2944000F57230 /* PCFPushRegistrationPutRequestData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PCFPushRegistrationPutRequestData.m; sourceTree = "<group>"; };
 		D4B9FF2119A3CD950070A429 /* PCFPushPersistentStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PCFPushPersistentStorage.h; sourceTree = "<group>"; };
@@ -130,6 +134,8 @@
 				2318E655199C039A0054C274 /* PCFPushURLConnection.m */,
 				2318E656199C039A0054C274 /* NSURLConnection+PCFBackEndConnection.h */,
 				2318E657199C039A0054C274 /* NSURLConnection+PCFBackEndConnection.m */,
+				B69DB1C1C77D584309B4A514 /* PCFPushURLConnectionDelegate.m */,
+				B69DBF79035BF7EB512921CE /* PCFPushURLConnectionDelegate.h */,
 			);
 			path = BackEnd;
 			sourceTree = "<group>";
@@ -240,6 +246,7 @@
 				2318E6B3199C039A0054C274 /* PCFPushErrorUtil.h in Headers */,
 				2318E6B5199C039A0054C274 /* PCFPushHexUtil.h in Headers */,
 				D4B9FF2719A511370070A429 /* PCFPushClient.h in Headers */,
+				B69DB6F10C98BAE96E584C79 /* PCFPushURLConnectionDelegate.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -341,6 +348,7 @@
 				2318E6A9199C039A0054C274 /* PCFHardwareUtil.m in Sources */,
 				D4B9FF2819A511370070A429 /* PCFPushClient.m in Sources */,
 				2318E68D199C039A0054C274 /* NSObject+PCFJSONizable.m in Sources */,
+				B69DB187F06479E0C679E69D /* PCFPushURLConnectionDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

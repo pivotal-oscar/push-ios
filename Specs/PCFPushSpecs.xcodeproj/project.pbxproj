@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		113DCA921A69A8FA007DB7A0 /* Pivotal.plist in Resources */ = {isa = PBXBuildFile; fileRef = B6AAEFF215AF196CD6B9B940 /* Pivotal.plist */; };
 		235BB251199C085200B9EE63 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 235BB23A199C085200B9EE63 /* InfoPlist.strings */; };
-		235BB252199C085200B9EE63 /* JRSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 235BB23D199C085200B9EE63 /* JRSwizzle.m */; };
 		235BB253199C085200B9EE63 /* PCFClassPropertyUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 235BB23F199C085200B9EE63 /* PCFClassPropertyUtility.m */; };
 		235BB254199C085200B9EE63 /* PCFPushBackEndConnectionSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 235BB240199C085200B9EE63 /* PCFPushBackEndConnectionSpec.m */; };
 		235BB255199C085200B9EE63 /* PCFPushBackEndRegistrationPostRequestDataSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 235BB242199C085200B9EE63 /* PCFPushBackEndRegistrationPostRequestDataSpec.m */; };
@@ -20,7 +19,6 @@
 		235BB25A199C085200B9EE63 /* PCFPushSpecsHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 235BB24B199C085200B9EE63 /* PCFPushSpecsHelper.m */; };
 		235BB25B199C085200B9EE63 /* PCFPushSpecs-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 235BB24C199C085200B9EE63 /* PCFPushSpecs-Info.plist */; };
 		235BB25C199C085200B9EE63 /* PCFRegistrationParametersSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 235BB24E199C085200B9EE63 /* PCFRegistrationParametersSpec.m */; };
-		235BB25D199C085200B9EE63 /* NSURLConnection+PCFPushAsync2Sync.m in Sources */ = {isa = PBXBuildFile; fileRef = 235BB250199C085200B9EE63 /* NSURLConnection+PCFPushAsync2Sync.m */; };
 		B6AAEE0D6C25F43D62FE3DF1 /* Pivotal-Empty.plist in Resources */ = {isa = PBXBuildFile; fileRef = B6AAEF958FD1CB06277607D7 /* Pivotal-Empty.plist */; };
 		B6AAEEB4854C71C7A968F1DD /* Pivotal-ExtraParameters.plist in Resources */ = {isa = PBXBuildFile; fileRef = B6AAEAB49D1EA1D6775A4EE8 /* Pivotal-ExtraParameters.plist */; };
 		D4F3AC4C19A2A120005E84FF /* PCFPushBackEndRegistrationPutRequestDataSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D4F3AC4B19A2A120005E84FF /* PCFPushBackEndRegistrationPutRequestDataSpec.m */; };
@@ -35,8 +33,6 @@
 
 /* Begin PBXFileReference section */
 		235BB23B199C085200B9EE63 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		235BB23C199C085200B9EE63 /* JRSwizzle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JRSwizzle.h; sourceTree = "<group>"; };
-		235BB23D199C085200B9EE63 /* JRSwizzle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JRSwizzle.m; sourceTree = "<group>"; };
 		235BB23E199C085200B9EE63 /* PCFClassPropertyUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PCFClassPropertyUtility.h; sourceTree = "<group>"; };
 		235BB23F199C085200B9EE63 /* PCFClassPropertyUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PCFClassPropertyUtility.m; sourceTree = "<group>"; };
 		235BB240199C085200B9EE63 /* PCFPushBackEndConnectionSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PCFPushBackEndConnectionSpec.m; sourceTree = "<group>"; };
@@ -53,8 +49,6 @@
 		235BB24C199C085200B9EE63 /* PCFPushSpecs-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "PCFPushSpecs-Info.plist"; sourceTree = "<group>"; };
 		235BB24D199C085200B9EE63 /* PCFPushSpecs-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PCFPushSpecs-Prefix.pch"; sourceTree = "<group>"; };
 		235BB24E199C085200B9EE63 /* PCFRegistrationParametersSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PCFRegistrationParametersSpec.m; sourceTree = "<group>"; };
-		235BB24F199C085200B9EE63 /* NSURLConnection+PCFPushAsync2Sync.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURLConnection+PCFPushAsync2Sync.h"; sourceTree = "<group>"; };
-		235BB250199C085200B9EE63 /* NSURLConnection+PCFPushAsync2Sync.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURLConnection+PCFPushAsync2Sync.m"; sourceTree = "<group>"; };
 		34012CF2F59FEE470ECEC1F2 /* Pods-PCFPushSpecs.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PCFPushSpecs.release.xcconfig"; path = "../Pods/Target Support Files/Pods-PCFPushSpecs/Pods-PCFPushSpecs.release.xcconfig"; sourceTree = "<group>"; };
 		48E0BEE976B04ACBAB665052 /* libPods-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		52B4F77F0A4647269B082C04 /* libPods-PCFPushSpecs.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PCFPushSpecs.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -92,8 +86,6 @@
 			isa = PBXGroup;
 			children = (
 				235BB23A199C085200B9EE63 /* InfoPlist.strings */,
-				235BB23C199C085200B9EE63 /* JRSwizzle.h */,
-				235BB23D199C085200B9EE63 /* JRSwizzle.m */,
 				235BB23E199C085200B9EE63 /* PCFClassPropertyUtility.h */,
 				235BB23F199C085200B9EE63 /* PCFClassPropertyUtility.m */,
 				235BB240199C085200B9EE63 /* PCFPushBackEndConnectionSpec.m */,
@@ -112,8 +104,6 @@
 				235BB24D199C085200B9EE63 /* PCFPushSpecs-Prefix.pch */,
 				235BB24E199C085200B9EE63 /* PCFRegistrationParametersSpec.m */,
 				D4F3AC5219A3A35A005E84FF /* PCFTagsHelperSpec.m */,
-				235BB24F199C085200B9EE63 /* NSURLConnection+PCFPushAsync2Sync.h */,
-				235BB250199C085200B9EE63 /* NSURLConnection+PCFPushAsync2Sync.m */,
 			);
 			path = PCFPushSpecs;
 			sourceTree = "<group>";
@@ -284,8 +274,6 @@
 				D4F3AC5319A3A35A005E84FF /* PCFTagsHelperSpec.m in Sources */,
 				235BB257199C085200B9EE63 /* PCFPushHexUtilSpec.m in Sources */,
 				235BB259199C085200B9EE63 /* PCFPushSpec.m in Sources */,
-				235BB252199C085200B9EE63 /* JRSwizzle.m in Sources */,
-				235BB25D199C085200B9EE63 /* NSURLConnection+PCFPushAsync2Sync.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

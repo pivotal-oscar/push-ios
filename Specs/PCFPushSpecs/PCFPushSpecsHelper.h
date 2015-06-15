@@ -42,7 +42,6 @@ OBJC_EXPORT NSString *const TEST_DEVICE_UUID;
 - (void) setupDefaultPLISTWithFile:(NSString*)parameterFilename;
 
 // NSURLConnectionHelpers
-- (BOOL) swizzleAsyncRequestWithSelector:(SEL)selector error:(NSError **)error;
 - (void)setupAsyncRequestWithBlock:(void(^)(NSURLRequest *request, NSURLResponse **resultResponse, NSData **resultData, NSError **resultError))block;
 - (void)setupSuccessfulAsyncRequestWithBlock:(void(^)(NSURLRequest*))block;
 - (void)setupSuccessfulDeleteAsyncRequestAndReturnStatus:(NSInteger)status;

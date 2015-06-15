@@ -5,7 +5,6 @@
 #import "Kiwi.h"
 
 #import "PCFPushSpecsHelper.h"
-#import "JRSwizzle.h"
 #import "PCFPushPersistentStorage.h"
 #import "PCFPushParameters.h"
 #import "PCFPushBackEndRegistrationResponseDataTest.h"
@@ -98,14 +97,8 @@ NSString *const TEST_DEVICE_UUID         = @"L337-L337-OH-YEAH";
 
 #pragma mark - NSURLConnection Helpers
 
-- (BOOL) swizzleAsyncRequestWithSelector:(SEL)selector
-                                   error:(NSError **)error
-{
-    return [NSURLConnection jr_swizzleClassMethod:@selector(sendAsynchronousRequest:queue:completionHandler:) withClassMethod:selector error:error];
-}
-
 - (void)setupAsyncRequestWithBlock:(void(^)(NSURLRequest *request, NSURLResponse **resultResponse, NSData **resultData, NSError **resultError))block {
-    [NSURLConnection stub:@selector(sendAsynchronousRequest:queue:completionHandler:) withBlock:^id(NSArray *params) {
+    [NSURLConnection stub:@selector(pcf_sendAsynchronousRequest_wrapper:queue:completionHandler:) withBlock:^id(NSArray *params) {
         NSURLResponse *resultResponse;
         NSData *resultData;
         NSError *resultError;
@@ -122,7 +115,7 @@ NSString *const TEST_DEVICE_UUID         = @"L337-L337-OH-YEAH";
 
 - (void)setupSuccessfulAsyncRequestWithBlock:(void(^)(NSURLRequest*))block
 {
-    [NSURLConnection stub:@selector(sendAsynchronousRequest:queue:completionHandler:) withBlock:^id(NSArray *params) {
+    [NSURLConnection stub:@selector(pcf_sendAsynchronousRequest_wrapper:queue:completionHandler:) withBlock:^id(NSArray *params) {
         if (block) {
             NSURLRequest *request = params[0];
             block(request);
@@ -150,7 +143,7 @@ NSString *const TEST_DEVICE_UUID         = @"L337-L337-OH-YEAH";
 
 - (void)setupSuccessfulDeleteAsyncRequestAndReturnStatus:(NSInteger)status
 {
-    [NSURLConnection stub:@selector(sendAsynchronousRequest:queue:completionHandler:) withBlock:^id(NSArray *params) {
+    [NSURLConnection stub:@selector(pcf_sendAsynchronousRequest_wrapper:queue:completionHandler:) withBlock:^id(NSArray *params) {
         NSURLRequest *request = params[0];
 
         __block NSHTTPURLResponse *newResponse;

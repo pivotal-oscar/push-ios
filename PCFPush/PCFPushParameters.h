@@ -24,6 +24,7 @@ extern BOOL isAPNSSandbox();
 @property (copy) NSString *developmentPushVariantSecret;
 @property (copy) NSString *productionPushVariantUUID;
 @property (copy) NSString *productionPushVariantSecret;
+@property (assign) BOOL trustAllSslCertificates;
 @property (copy) NSSet *pushTags;
 
 /**

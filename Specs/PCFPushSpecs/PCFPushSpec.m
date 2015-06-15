@@ -11,7 +11,6 @@
 #import "PCFPushParameters.h"
 #import "PCFPushRegistrationPutRequestData.h"
 #import "PCFPushRegistrationPostRequestData.h"
-#import "NSURLConnection+PCFPushAsync2Sync.h"
 #import "NSURLConnection+PCFBackEndConnection.h"
 #import "NSObject+PCFJSONizable.h"
 
@@ -180,7 +179,7 @@ describe(@"PCFPush", ^{
                 [[requestBody.deviceAlias should] equal:TEST_DEVICE_ALIAS_1];
             }];
 
-            [[NSURLConnection shouldEventually] receive:@selector(sendAsynchronousRequest:queue:completionHandler:)];
+            [[NSURLConnection shouldEventually] receive:@selector(pcf_sendAsynchronousRequest_wrapper:queue:completionHandler:)];
 
             testBlock = ^(SEL sel, id newPersistedValue) {
 
@@ -273,7 +272,7 @@ describe(@"PCFPush", ^{
             __block BOOL wasSuccessBlockExecuted = NO;
             __block NSSet *expectedTags;
 
-            [[NSURLConnection shouldEventually] receive:@selector(sendAsynchronousRequest:queue:completionHandler:) withCount:1];
+            [[NSURLConnection shouldEventually] receive:@selector(pcf_sendAsynchronousRequest_wrapper:queue:completionHandler:) withCount:1];
 
             [helper setupSuccessfulAsyncRequestWithBlock:^(NSURLRequest *request) {
 
@@ -312,7 +311,7 @@ describe(@"PCFPush", ^{
 
             __block BOOL wasSuccessBlockExecuted = NO;
 
-            [[NSURLConnection shouldEventually] receive:@selector(sendAsynchronousRequest:queue:completionHandler:) withCount:1];
+            [[NSURLConnection shouldEventually] receive:@selector(pcf_sendAsynchronousRequest_wrapper:queue:completionHandler:) withCount:1];
             [helper setupSuccessfulAsyncRequestWithBlock:^(NSURLRequest *request) {}];
 
             [PCFPush load];
@@ -352,8 +351,12 @@ describe(@"PCFPush", ^{
         });
 
         it(@"should handle an HTTP status error", ^{
-            NSError *error;
-            [helper swizzleAsyncRequestWithSelector:@selector(HTTPErrorResponseRequest:queue:completionHandler:) error:&error];
+            [NSURLConnection stub:@selector(pcf_sendAsynchronousRequest_wrapper:queue:completionHandler:) withBlock:^id(NSArray *params) {
+                NSHTTPURLResponse *newResponse = [[NSHTTPURLResponse alloc] initWithURL:nil statusCode:400 HTTPVersion:nil headerFields:nil];
+                CompletionHandler handler = params[2];
+                handler(newResponse, nil, nil);
+                return nil;
+            }];
 
             [PCFPushClient sendRegisterRequestWithParameters:helper.params
                                                  deviceToken:helper.apnsDeviceToken
@@ -369,8 +372,13 @@ describe(@"PCFPush", ^{
 
 
         it(@"should handle a successful response with empty data", ^{
-            NSError *error;
-            [helper swizzleAsyncRequestWithSelector:@selector(emptyDataResponseRequest:queue:completionHandler:) error:&error];
+            [NSURLConnection stub:@selector(pcf_sendAsynchronousRequest_wrapper:queue:completionHandler:) withBlock:^id(NSArray *params) {
+                NSHTTPURLResponse *newResponse = [[NSHTTPURLResponse alloc] initWithURL:nil statusCode:200 HTTPVersion:nil headerFields:nil];
+                NSData *newData = [NSData data];
+                CompletionHandler handler = params[2];
+                handler(newResponse, newData, nil);
+                return nil;
+            }];
 
             [PCFPushClient sendRegisterRequestWithParameters:helper.params
                                                  deviceToken:helper.apnsDeviceToken
@@ -385,8 +393,12 @@ describe(@"PCFPush", ^{
         });
 
         it(@"should handle a successful response with nil data", ^{
-            NSError *error;
-            [helper swizzleAsyncRequestWithSelector:@selector(nilDataResponseRequest:queue:completionHandler:) error:&error];
+            [NSURLConnection stub:@selector(pcf_sendAsynchronousRequest_wrapper:queue:completionHandler:) withBlock:^id(NSArray *params) {
+                NSHTTPURLResponse *newResponse = [[NSHTTPURLResponse alloc] initWithURL:nil statusCode:200 HTTPVersion:nil headerFields:nil];
+                CompletionHandler handler = params[2];
+                handler(newResponse, nil, nil);
+                return nil;
+            }];
 
             [PCFPushClient sendRegisterRequestWithParameters:helper.params
                                                  deviceToken:helper.apnsDeviceToken
@@ -401,8 +413,13 @@ describe(@"PCFPush", ^{
         });
 
         it(@"should handle a successful response with zero-length", ^{
-            NSError *error;
-            [helper swizzleAsyncRequestWithSelector:@selector(zeroLengthDataResponseRequest:queue:completionHandler:) error:&error];
+            [NSURLConnection stub:@selector(pcf_sendAsynchronousRequest_wrapper:queue:completionHandler:) withBlock:^id(NSArray *params) {
+                NSHTTPURLResponse *newResponse = [[NSHTTPURLResponse alloc] initWithURL:nil statusCode:200 HTTPVersion:nil headerFields:nil];
+                NSData *newData = [@"" dataUsingEncoding:NSUTF8StringEncoding];
+                CompletionHandler handler = params[2];
+                handler(newResponse, newData, nil);
+                return nil;
+            }];
 
             [PCFPushClient sendRegisterRequestWithParameters:helper.params
                                                  deviceToken:helper.apnsDeviceToken
@@ -417,8 +434,13 @@ describe(@"PCFPush", ^{
         });
 
         it(@"should handle a successful response that contains unparseable text", ^{
-            NSError *error;
-            [helper swizzleAsyncRequestWithSelector:@selector(unparseableDataResponseRequest:queue:completionHandler:) error:&error];
+            [NSURLConnection stub:@selector(pcf_sendAsynchronousRequest_wrapper:queue:completionHandler:) withBlock:^id(NSArray *params) {
+                NSHTTPURLResponse *newResponse = [[NSHTTPURLResponse alloc] initWithURL:nil statusCode:200 HTTPVersion:nil headerFields:nil];
+                NSData *newData = [@"This is not JSON" dataUsingEncoding:NSUTF8StringEncoding];
+                CompletionHandler handler = params[2];
+                handler(newResponse, newData, nil);
+                return nil;
+            }];
 
             [PCFPushClient sendRegisterRequestWithParameters:helper.params
                                                  deviceToken:helper.apnsDeviceToken
@@ -432,8 +454,15 @@ describe(@"PCFPush", ^{
         });
 
         it(@"should require a device_uuid in the server response", ^{
-            NSError *error;
-            [helper swizzleAsyncRequestWithSelector:@selector(missingUUIDResponseRequest:queue:completionHandler:) error:&error];
+            [NSURLConnection stub:@selector(pcf_sendAsynchronousRequest_wrapper:queue:completionHandler:) withBlock:^id(NSArray *params) {
+                NSHTTPURLResponse *newResponse = [[NSHTTPURLResponse alloc] initWithURL:nil statusCode:200 HTTPVersion:nil headerFields:nil];
+                NSDictionary *newJSON = @{@"os" : @"AmigaOS"};
+                NSError *error;
+                NSData *newData = [NSJSONSerialization dataWithJSONObject:newJSON options:NSJSONWritingPrettyPrinted error:&error];
+                CompletionHandler handler = params[2];
+                handler(newResponse, newData, nil);
+                return nil;
+            }];
 
             [PCFPushClient sendRegisterRequestWithParameters:helper.params
                                                  deviceToken:helper.apnsDeviceToken
@@ -473,7 +502,7 @@ describe(@"PCFPush", ^{
 
             it(@"should be considered a success if the device isn't currently registered", ^{
                 [[[PCFPushPersistentStorage serverDeviceID] should] beNil];
-                [[NSURLConnection shouldNotEventually] receive:@selector(sendAsynchronousRequest:queue:completionHandler:)];
+                [[NSURLConnection shouldNotEventually] receive:@selector(pcf_sendAsynchronousRequest_wrapper:queue:completionHandler:)];
 
                 [PCFPush unregisterFromPCFPushNotificationsWithSuccess:^{
                     successBlockExecuted = YES;
@@ -493,7 +522,7 @@ describe(@"PCFPush", ^{
                 [helper setupSuccessfulDeleteAsyncRequestAndReturnStatus:204];
 
                 [[[PCFPushPersistentStorage serverDeviceID] shouldNot] beNil];
-                [[NSURLConnection shouldEventually] receive:@selector(sendAsynchronousRequest:queue:completionHandler:)];
+                [[NSURLConnection shouldEventually] receive:@selector(pcf_sendAsynchronousRequest_wrapper:queue:completionHandler:)];
 
                 [PCFPush unregisterFromPCFPushNotificationsWithSuccess:^{
                     successBlockExecuted = YES;
@@ -516,7 +545,7 @@ describe(@"PCFPush", ^{
             [helper setupDefaultPersistedParameters];
             [helper setupSuccessfulDeleteAsyncRequestAndReturnStatus:404];
 
-            [[NSURLConnection shouldEventually] receive:@selector(sendAsynchronousRequest:queue:completionHandler:)];
+            [[NSURLConnection shouldEventually] receive:@selector(pcf_sendAsynchronousRequest_wrapper:queue:completionHandler:)];
 
             [PCFPush unregisterFromPCFPushNotificationsWithSuccess:^{
                 fail(@"unregistration success block executed");
@@ -538,14 +567,14 @@ describe(@"PCFPush", ^{
             [helper setupDefaultPersistedParameters];
             failureBlockExecuted = NO;
 
-            [NSURLConnection stub:@selector(sendAsynchronousRequest:queue:completionHandler:) withBlock:^id(NSArray *params) {
+            [NSURLConnection stub:@selector(pcf_sendAsynchronousRequest_wrapper:queue:completionHandler:) withBlock:^id(NSArray *params) {
                 NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorTimedOut userInfo:nil];
                 CompletionHandler handler = params[2];
                 handler(nil, nil, error);
                 return nil;
             }];
 
-            [[NSURLConnection shouldEventually] receive:@selector(sendAsynchronousRequest:queue:completionHandler:)];
+            [[NSURLConnection shouldEventually] receive:@selector(pcf_sendAsynchronousRequest_wrapper:queue:completionHandler:)];
 
             [PCFPush unregisterFromPCFPushNotificationsWithSuccess:^{
                 fail(@"unregistration success block executed incorrectly");
