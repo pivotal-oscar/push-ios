@@ -50,7 +50,7 @@
                           completionHandler:(void (^)(NSURLResponse*, NSData*, NSError*))handler
 {
     PCFPushURLConnectionDelegate *delegate = [[PCFPushURLConnectionDelegate alloc] initWithRequest:request queue:queue completionHandler:handler];
-    [[NSURLConnection alloc] initWithRequest:request delegate:delegate];
+    (void) [[NSURLConnection alloc] initWithRequest:request delegate:delegate];
 }
 
 #pragma mark - Utility Methods
