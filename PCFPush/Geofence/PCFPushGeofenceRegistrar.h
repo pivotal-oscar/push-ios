@@ -10,13 +10,14 @@
 @class PCFPushGeofenceLocation;
 @class PCFPushGeofenceData;
 @class CLLocationManager;
+@class CLLocation;
 @class CLRegion;
 
 @interface PCFPushGeofenceRegistrar : NSObject
 
 - (instancetype) initWithLocationManager:(CLLocationManager*)locationManager;
 
-- (void) registerGeofences:(PCFPushGeofenceLocationMap *)geofencesToRegister list:(PCFPushGeofenceDataList *)list;
+- (void) registerGeofences:(PCFPushGeofenceLocationMap *)geofencesToRegister list:(PCFPushGeofenceDataList *)list currentLocation:(CLLocation *)currentLocation;
 - (void) unregisterGeofences:(PCFPushGeofenceLocationMap *)geofencesToUnregister geofencesToKeep:(PCFPushGeofenceLocationMap *)geofencesToKeep list:(PCFPushGeofenceDataList *)list;
 - (void) reset;
 

@@ -14,11 +14,13 @@
 #import "PCFPushGeofenceUtil.h"
 #import "PCFPushGeofenceLocation.h"
 #import "PCFPushDebug.h"
+#import "PCFPushTimer.h"
 
 @interface PCFPushGeofenceEngine ()
 
 @property (nonatomic) PCFPushGeofenceRegistrar *registrar;
 @property (nonatomic) PCFPushGeofencePersistentStore *store;
+@property (nonatomic) CLLocationManager *locationManager;
 
 @end
 
@@ -156,9 +158,15 @@ static void filterClearedLocations(PCFPushGeofenceLocationMap *locationsToClear,
     }];
 }
 
+static BOOL isValidLocation(CLLocation* location)
+{
+    NSTimeInterval timeIntervalSinceNow = [location.timestamp timeIntervalSinceNow];
+    return location && fabs(timeIntervalSinceNow) < 60.0 && location.horizontalAccuracy <= 100.0;
+}
+
 @implementation PCFPushGeofenceEngine
 
-- (id)initWithRegistrar:(PCFPushGeofenceRegistrar *)registrar store:(PCFPushGeofencePersistentStore *)store
+- (id) initWithRegistrar:(PCFPushGeofenceRegistrar *)registrar store:(PCFPushGeofencePersistentStore *)store locationManager:(CLLocationManager *)locationManager
 {
     self = [super init];
     if (self) {
@@ -168,8 +176,12 @@ static void filterClearedLocations(PCFPushGeofenceLocationMap *locationsToClear,
         if (!store) {
             @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"store may not be nil" userInfo:nil];
         }
+        if (!locationManager) {
+            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"locationManager may not be nil" userInfo:nil];
+        }
         self.store = store;
         self.registrar = registrar;
+        self.locationManager = locationManager;
     }
     return self;
 }
@@ -207,8 +219,18 @@ static void filterClearedLocations(PCFPushGeofenceLocationMap *locationsToClear,
 
     addLocations(geofencesToRegister, geofencesToStore);
 
-    [self.registrar registerGeofences:geofencesToRegister list:geofencesToStore];
     [self.store saveRegisteredGeofences:geofencesToStore];
+
+    CLLocation *currentLocation = self.locationManager.location;
+    if (isValidLocation(currentLocation)) {
+
+        PCFPushLog(@"The location is current and accurate.  Registering geofences. %@", currentLocation);
+        [self.registrar registerGeofences:geofencesToRegister list:geofencesToStore currentLocation:currentLocation];
+
+    } else {
+        PCFPushLog(@"The location is nil, old and/or inaccurate.  Requesting location update before we can register geofences. %@", currentLocation);
+        [PCFPushTimer startLocationUpdateTimer:self.locationManager];
+    }
 }
 
 - (void) clearLocations:(PCFPushGeofenceLocationMap *)locationsToClear
@@ -225,6 +247,22 @@ static void filterClearedLocations(PCFPushGeofenceLocationMap *locationsToClear,
 
     [self.registrar unregisterGeofences:locationsToClear geofencesToKeep:geofencesToRegister list:storedGeofences];
     [self.store saveRegisteredGeofences:geofencesToStore];
+}
+
+- (void)reregisterAllGeofencesWithCurrentLocation:(CLLocation *)currentLocation
+{
+    PCFPushGeofenceDataList *currentlyRegisteredGeofences = [self.store currentlyRegisteredGeofences];
+
+    if (currentlyRegisteredGeofences.count <= 0) {
+        PCFPushLog(@"Nothing to register.");
+        return;
+    }
+
+    PCFPushGeofenceLocationMap *geofencesToRegister = [PCFPushGeofenceLocationMap map];
+
+    addLocations(geofencesToRegister, currentlyRegisteredGeofences);
+
+    [self.registrar registerGeofences:geofencesToRegister list:currentlyRegisteredGeofences currentLocation:currentLocation];
 }
 
 @end

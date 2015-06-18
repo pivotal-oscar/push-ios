@@ -9,11 +9,14 @@
 @class PCFPushGeofenceRegistrar;
 @class PCFPushGeofencePersistentStore;
 @class PCFPushGeofenceLocationMap;
+@class CLLocationManager;
+@class CLLocation;
 
 @interface PCFPushGeofenceEngine : NSObject
 
-- (id)initWithRegistrar:(PCFPushGeofenceRegistrar *)registrar store:(PCFPushGeofencePersistentStore *)store;
+- (id) initWithRegistrar:(PCFPushGeofenceRegistrar *)registrar store:(PCFPushGeofencePersistentStore *)store locationManager:(CLLocationManager *)locationManager;
 - (void) processResponseData:(PCFPushGeofenceResponseData*)responseData withTimestamp:(int64_t)timestamp;
 - (void) clearLocations:(PCFPushGeofenceLocationMap *)locationsToClear;
+- (void) reregisterAllGeofencesWithCurrentLocation:(CLLocation *)currentLocation;
 
 @end

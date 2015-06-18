@@ -9,6 +9,9 @@
 #import "PCFPushGeofenceDataList+Loaders.h"
 #import "PCFPushGeofenceStatus.h"
 #import "PCFPushGeofenceStatusUtil.h"
+#import "PCFPushGeofenceUtil.h"
+#import "PCFPushGeofenceLocation.h"
+#import "PCFPushGeofenceData.h"
 #import <CoreLocation/CoreLocation.h>
 
 static CLRegion *makeRegion()
@@ -59,7 +62,7 @@ describe(@"PCFPushGeofenceRegistrar", ^{
         [[locationManager shouldNot] receive:@selector(startMonitoringForRegion:)];
         [[locationManager shouldNot] receive:@selector(stopMonitoringForRegion:)];
         [[locationManager shouldNot] receive:@selector(requestStateForRegion:)];
-        [registrar registerGeofences:oneItemGeofenceMap list:oneItemGeofenceList];
+        [registrar registerGeofences:oneItemGeofenceMap list:oneItemGeofenceList currentLocation:nil];
     });
 
     context(@"registering geofences", ^{
@@ -75,7 +78,7 @@ describe(@"PCFPushGeofenceRegistrar", ^{
             [[locationManager shouldNot] receive:@selector(stopMonitoringForRegion:)];
             [[locationManager shouldNot] receive:@selector(requestStateForRegion:)];
             [[PCFPushGeofenceStatusUtil should] receive:@selector(updateGeofenceStatusWithError:errorReason:number:fileManager:) withArguments:theValue(NO), any(), theValue(0), any(), nil];
-            [registrar registerGeofences:nil list:nil];
+            [registrar registerGeofences:nil list:nil currentLocation:nil];
         });
 
         it(@"should do nothing if given empty lists", ^{
@@ -85,7 +88,7 @@ describe(@"PCFPushGeofenceRegistrar", ^{
             [[locationManager shouldNot] receive:@selector(stopMonitoringForRegion:)];
             [[locationManager shouldNot] receive:@selector(requestStateForRegion:)];
             [[PCFPushGeofenceStatusUtil should] receive:@selector(updateGeofenceStatusWithError:errorReason:number:fileManager:) withArguments:theValue(NO), any(), theValue(0), any(), nil];
-            [registrar registerGeofences:emptyMap list:nil];
+            [registrar registerGeofences:emptyMap list:nil currentLocation:nil];
         });
 
         it(@"should be able to monitor a list with one item", ^{
@@ -94,7 +97,7 @@ describe(@"PCFPushGeofenceRegistrar", ^{
             [[locationManager shouldNot] receive:@selector(stopMonitoringForRegion:)];
             [[locationManager should] receive:@selector(requestStateForRegion:) withArguments:region, nil];
             [[PCFPushGeofenceStatusUtil should] receive:@selector(updateGeofenceStatusWithError:errorReason:number:fileManager:) withArguments:theValue(NO), any(), theValue(1), any(), nil];
-            [registrar registerGeofences:oneItemGeofenceMap list:oneItemGeofenceList];
+            [registrar registerGeofences:oneItemGeofenceMap list:oneItemGeofenceList currentLocation:nil];
         });
 
         it(@"should stop monitoring regions that you don't register", ^{
@@ -104,7 +107,55 @@ describe(@"PCFPushGeofenceRegistrar", ^{
             [[locationManager should] receive:@selector(stopMonitoringForRegion:) withArguments:monitoredRegion];
             [[locationManager should] receive:@selector(requestStateForRegion:) withArguments:region, nil];
             [[PCFPushGeofenceStatusUtil should] receive:@selector(updateGeofenceStatusWithError:errorReason:number:fileManager:) withArguments:theValue(NO), any(), theValue(1), any(), nil];
-            [registrar registerGeofences:oneItemGeofenceMap list:oneItemGeofenceList];
+            [registrar registerGeofences:oneItemGeofenceMap list:oneItemGeofenceList currentLocation:nil];
+        });
+        
+        it(@"should only register the 20 closest geofences", ^{
+
+            PCFPushGeofenceLocationMap *manyGeofencesMap = [[PCFPushGeofenceLocationMap alloc] init];
+            PCFPushGeofenceDataList *manyGeofencesList = [[PCFPushGeofenceDataList alloc] init];
+            NSMutableSet *expectedMonitoredGeofences = [NSMutableSet set];
+            NSMutableSet *actualMonitoredGeofences = [NSMutableSet set];
+            CLLocation *currentLocation = [[CLLocation alloc] initWithCoordinate:CLLocationCoordinate2DMake(0.0, 0.0) altitude:0.0 horizontalAccuracy:10.0 verticalAccuracy:10.0 timestamp:[NSDate date]];
+
+            for (int i = 0; i < 1000; i += 1) {
+                NSString *requestId = pcfPushRequestIdWithGeofenceId(i, i);
+
+                PCFPushGeofenceLocation *location = [[PCFPushGeofenceLocation alloc] init];
+                location.id = i;
+                location.name = requestId;
+                location.latitude = i/1000.0;
+                location.longitude = i/1000.0;
+                location.radius = 100.0;
+
+                PCFPushGeofenceData *geofence = [[PCFPushGeofenceData alloc] init];
+                geofence.id = i;
+                geofence.triggerType = PCFPushTriggerTypeEnter;
+                geofence.expiryTime = [NSDate distantFuture];
+                geofence.locations = @[location];
+
+                manyGeofencesList[requestId] = geofence;
+                [manyGeofencesMap put:geofence location:location];
+
+                if (i < 20) {
+                    [expectedMonitoredGeofences addObject:requestId];
+                }
+            }
+
+            [locationManager stub:@selector(monitoredRegions) andReturn:[NSSet set]];
+            [[locationManager should] receive:@selector(startMonitoringForRegion:) withCount:20];
+            [locationManager stub:@selector(startMonitoringForRegion:) withBlock:^id(NSArray *params) {
+                CLRegion *monitoredRegion = (CLRegion*) params[0];
+                [actualMonitoredGeofences addObject:monitoredRegion.identifier];
+                return nil;
+            }];
+            [[locationManager shouldNot] receive:@selector(stopMonitoringForRegion:)];
+            [[locationManager should] receive:@selector(requestStateForRegion:) withCount:20];
+            [[PCFPushGeofenceStatusUtil should] receive:@selector(updateGeofenceStatusWithError:errorReason:number:fileManager:) withArguments:theValue(NO), any(), theValue(1000), any(), nil];
+
+            [registrar registerGeofences:manyGeofencesMap list:manyGeofencesList currentLocation:currentLocation];
+
+            [[actualMonitoredGeofences should] equal:expectedMonitoredGeofences];
         });
     });
 

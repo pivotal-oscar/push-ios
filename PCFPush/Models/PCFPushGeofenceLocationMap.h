@@ -8,6 +8,7 @@
 @class PCFPushGeofenceData;
 @class PCFPushGeofenceLocation;
 @class PCFPushGeofenceDataList;
+@class CLLocation;
 
 @interface PCFPushGeofenceLocationMap : NSObject
 
@@ -21,5 +22,6 @@
 - (void) put:(PCFPushGeofenceData*)geofence locationIndex:(NSUInteger)locationIndex;
 - (void)enumerateKeysAndObjectsUsingBlock:(void (^)(NSString *requestId, PCFPushGeofenceLocation *location, BOOL *stop))block;
 - (BOOL)isEqual:(id)anObject;
+- (NSArray*)sortKeysByDistanceToLocation:(CLLocation*)deviceLocation;
 
 @end

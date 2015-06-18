@@ -18,8 +18,10 @@ NSInteger pcfPushTimerReferenceCounter = 0;
 
         PCFPushLog(@"Starting to track device location. Starting timer.");
         pcfPushTimerReferenceCounter = YES;
+        locationManager.pausesLocationUpdatesAutomatically = NO;
         locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation;
         locationManager.distanceFilter = 10; // meters
+        [locationManager startMonitoringSignificantLocationChanges];
         [locationManager startUpdatingLocation];
     } else {
         pcfPushTimerReferenceCounter += 1;
@@ -57,6 +59,7 @@ NSInteger pcfPushTimerReferenceCounter = 0;
 
         if (locationManager) {
             [locationManager stopUpdatingLocation];
+            [locationManager stopMonitoringSignificantLocationChanges];
         }
 
     } else { // pcfPushTimerReferenceCounter < 1

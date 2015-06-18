@@ -229,4 +229,9 @@ static void clearLocation(NSString *requestId, PCFPushGeofenceData *geofence, PC
     }];
 }
 
++ (void)reregisterAllGeofencesWithCurrentLocation:(CLLocation *)currentLocation engine:(PCFPushGeofenceEngine *)engine
+{
+    [engine reregisterAllGeofencesWithCurrentLocation:currentLocation];
+}
+
 @end

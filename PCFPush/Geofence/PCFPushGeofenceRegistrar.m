@@ -34,7 +34,7 @@
     return self;
 }
 
-- (void)registerGeofences:(PCFPushGeofenceLocationMap *)geofencesToRegister list:(PCFPushGeofenceDataList *)list
+- (void)registerGeofences:(PCFPushGeofenceLocationMap *)geofencesToRegister list:(PCFPushGeofenceDataList *)list currentLocation:(CLLocation *)currentLocation
 {
     if (![CLLocationManager isMonitoringAvailableForClass:[CLCircularRegion class]]) {
         NSString *errorReason = @"isMonitoringAvailableForClass:CLCircularRegion is NOT available. Monitoring of geofences not possible on this device.";
@@ -48,10 +48,20 @@
         [self.locationManager stopMonitoringForRegion:region];
     }
 
-    PCFPushLog(@"About to monitor %d geofences locations." , geofencesToRegister.count);
+    PCFPushLog(@"About to monitor %d geofences locations." , MIN(geofencesToRegister.count, 20));
 
-    [geofencesToRegister enumerateKeysAndObjectsUsingBlock:^(NSString *requestId, PCFPushGeofenceLocation *location, BOOL *stop) {
+    NSArray *sortedKeys = [geofencesToRegister sortKeysByDistanceToLocation:currentLocation];
+    
+    [sortedKeys enumerateObjectsUsingBlock:^(id requestId, NSUInteger idx, BOOL *stop) {
+        
+        if (idx >= 20) {
+            // Limit to a maximum of 20 geofences
+            *stop = YES;
+            return;
+        }
+        
         int64_t geofenceId = pcfPushGeofenceIdForRequestId(requestId);
+        PCFPushGeofenceLocation *location = geofencesToRegister[requestId];
         PCFPushGeofenceData *geofence = list[@(geofenceId)];
         CLRegion *region = pcfPushRegionForLocation(requestId, geofence, location);
         [self.locationManager startMonitoringForRegion:region];

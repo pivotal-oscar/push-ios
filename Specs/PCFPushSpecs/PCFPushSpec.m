@@ -17,6 +17,7 @@
 #import "PCFPushRegistrationPutRequestData.h"
 #import "PCFPushRegistrationPostRequestData.h"
 #import "NSURLConnection+PCFBackEndConnection.h"
+#import "PCFPushGeofenceEngine.h"
 
 SPEC_BEGIN(PCFPushSpecs)
 
@@ -1627,12 +1628,9 @@ describe(@"PCFPush", ^{
 
         context(@"processing location updates", ^{
 
-            beforeEach(^{
-                [[PCFPushTimer should] receive:@selector(stopLocationUpdateTimer:)];
-                [[PCFPushGeofenceHandler should] receive:@selector(checkGeofencesForNewlySubscribedTagsWithStore:locationManager:)];
-            });
-
             it(@"should process geofences with location updates", ^{
+                [[PCFPushTimer should] receive:@selector(stopLocationUpdateTimer:)];
+                [[PCFPushGeofenceHandler should] receive:@selector(reregisterAllGeofencesWithCurrentLocation:engine:)];
                 CLLocation *location = [[CLLocation alloc] initWithCoordinate:CLLocationCoordinate2DMake(0, 0) altitude:0 horizontalAccuracy:0 verticalAccuracy:0 timestamp:[NSDate date]];
                 [[PCFPushClient shared] locationManager:locationManager didUpdateLocations:@[location]];
             });

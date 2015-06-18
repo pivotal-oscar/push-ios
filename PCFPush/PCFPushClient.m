@@ -4,6 +4,8 @@
 
 #import <objc/runtime.h>
 #import <CoreLocation/CoreLocation.h>
+#import <PCFPush/PCFPushGeofenceDataList.h>
+#import <PCFPush/PCFPushGeofenceLocationMap.h>
 
 #import "PCFPushClient.h"
 #import "PCFPushDebug.h"
@@ -23,6 +25,9 @@
 #import "PCFPushTimer.h"
 
 typedef void (^RegistrationBlock)(NSURLResponse *response, id responseData);
+
+#define ONE_MINUTE 60.0
+#define ONE_HUNDRED_METRES 100
 
 static PCFPushClient *_sharedPCFPushClient;
 static dispatch_once_t _sharedPCFPushClientToken;
@@ -58,7 +63,7 @@ static BOOL isGeofenceUpdate(NSDictionary* userInfo)
         self.locationManager.delegate = self;
         self.registrar = [[PCFPushGeofenceRegistrar alloc] initWithLocationManager:self.locationManager];
         self.store = [[PCFPushGeofencePersistentStore alloc] initWithFileManager:[NSFileManager defaultManager]];
-        self.engine = [[PCFPushGeofenceEngine alloc] initWithRegistrar:self.registrar store:self.store];
+        self.engine = [[PCFPushGeofenceEngine alloc] initWithRegistrar:self.registrar store:self.store locationManager:self.locationManager];
     }
     return self;
 }
@@ -445,15 +450,15 @@ static BOOL isGeofenceUpdate(NSDictionary* userInfo)
     CLLocation* location = [locations lastObject];
     NSDate* eventDate = location.timestamp;
     NSTimeInterval howRecent = [eventDate timeIntervalSinceNow];
-    if (fabs(howRecent) <= 15.0) { // If the event is recent then do something with it.
+    if (fabs(howRecent) <= ONE_MINUTE) { // TODO: decide on the maximum valid age for location timestamps
 
-        // TODO - decide if 10 meters is too demanding.
         PCFPushLog(@"Received location update: %@", location);
-        if (location.horizontalAccuracy <= 10.0) {
 
-            PCFPushLog(@"Testing geofences since current location accuracy is less than 10.0 m.");
+        if (location.horizontalAccuracy <= ONE_HUNDRED_METRES) {
 
-            [PCFPushGeofenceHandler checkGeofencesForNewlySubscribedTagsWithStore:self.store locationManager:self.locationManager];
+            PCFPushLog(@"Registering geofences since current location accuracy is less than %d m.", ONE_HUNDRED_METRES);
+
+            [PCFPushGeofenceHandler reregisterAllGeofencesWithCurrentLocation:location engine:self.engine];
 
             [PCFPushTimer stopLocationUpdateTimer:self.locationManager];
         }
@@ -470,15 +475,6 @@ static BOOL isGeofenceUpdate(NSDictionary* userInfo)
 
     PCFPushLog(@"locationManager:didExitRegion %@", region.identifier);
     [PCFPushGeofenceHandler processRegion:region store:self.store engine:self.engine state:CLRegionStateOutside];
-}
-
-- (void)locationManager:(CLLocationManager *)manager monitoringDidFailForRegion:(CLRegion *)region withError:(NSError *)error
-{
-    if (!self.registrationParameters.areGeofencesEnabled) {
-        return;
-    }
-
-    PCFPushLog(@"locationManager:monitoringDidFailForRegion %@: %@. This error is transient and non-fatal.", region.identifier, error);
 }
 
 - (void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region

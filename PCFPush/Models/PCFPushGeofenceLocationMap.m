@@ -3,6 +3,7 @@
 // Copyright (c) 2015 Pivotal. All rights reserved.
 //
 
+#import <CoreLocation/CoreLocation.h>
 #import "PCFPushGeofenceLocationMap.h"
 #import "PCFPushGeofenceData.h"
 #import "PCFPushGeofenceLocation.h"
@@ -80,6 +81,20 @@
 - (void)setObject:(id)obj forKeyedSubscript:(id <NSCopying>)key
 {
     self.dict[key] = obj;
+}
+
+- (NSArray*)sortKeysByDistanceToLocation:(CLLocation*)deviceLocation
+{
+    NSArray *sortedKeys = [self.dict.allKeys sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+        PCFPushGeofenceLocation *geofenceLocation1 = self[obj1];
+        PCFPushGeofenceLocation *geofenceLocation2 = self[obj2];
+        CLLocation *location1 = [[CLLocation alloc] initWithLatitude:geofenceLocation1.latitude longitude:geofenceLocation1.longitude];
+        CLLocation *location2 = [[CLLocation alloc] initWithLatitude:geofenceLocation2.latitude longitude:geofenceLocation2.longitude];
+        NSNumber* dist1 = @([location1 distanceFromLocation:deviceLocation]);
+        NSNumber* dist2 = @([location2 distanceFromLocation:deviceLocation]);
+        return [dist1 compare:dist2];
+    }];
+    return sortedKeys;
 }
 
 - (void)enumerateKeysAndObjectsUsingBlock:(void (^)(NSString *requestId, PCFPushGeofenceLocation *location, BOOL *stop))block
