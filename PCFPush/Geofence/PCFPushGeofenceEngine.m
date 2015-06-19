@@ -243,6 +243,8 @@ static BOOL isValidLocation(CLLocation* location)
     PCFPushGeofenceDataList *geofencesToStore = [PCFPushGeofenceDataList list];
     PCFPushGeofenceLocationMap *geofencesToRegister = [PCFPushGeofenceLocationMap map];
 
+    // TODO - filter expired locations
+
     filterClearedLocations(locationsToClear, storedGeofences, geofencesToStore, geofencesToRegister);
 
     [self.registrar unregisterGeofences:locationsToClear geofencesToKeep:geofencesToRegister list:storedGeofences];
@@ -257,6 +259,8 @@ static BOOL isValidLocation(CLLocation* location)
         PCFPushLog(@"Nothing to register.");
         return;
     }
+
+    // TODO - filter expired locations
 
     PCFPushGeofenceLocationMap *geofencesToRegister = [PCFPushGeofenceLocationMap map];
 

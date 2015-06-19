@@ -444,6 +444,8 @@ static BOOL isGeofenceUpdate(NSDictionary* userInfo)
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
+    // TODO - disable location monitoring if geofences are disabled
+
     if (!locations || locations.count <= 0) {
         return;
     }
